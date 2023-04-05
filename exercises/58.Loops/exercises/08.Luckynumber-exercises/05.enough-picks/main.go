@@ -1,9 +1,9 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"math/rand"
+	"os"
 	"strconv"
 	"time"
 )
@@ -11,8 +11,9 @@ import (
 const (
 	maxTurns = 5 // less is more difficult
 	usage    = `Welcome to the Lucky Number Game! 🍀
-The program will pick a random number between 1 and 10 (inclusive) or between 1 and the number you provide (exclusive).
-Your mission is to guess the number.
+The program will pick %d random numbers.
+Your mission is to guess one of those numbers.
+The greater your number is, harder it gets.
 Wanna play?
 `
 )
@@ -20,46 +21,45 @@ Wanna play?
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	var verbose bool
-	flag.BoolVar(&verbose, "v", false, "print the picked numbers")
-	flag.Parse()
+	args := os.Args[1:]
 
-	if flag.NArg() != 1 {
-		fmt.Printf(usage)
+	if len(args) < 1 {
+		fmt.Printf(usage, maxTurns)
 		return
 	}
 
-	guess, err := strconv.Atoi(flag.Arg(0))
-	if err != nil || guess <= 0 {
-		fmt.Println("Please provide a positive integer.")
+	guess, err := strconv.Atoi(args[0])
+	if err != nil {
+		fmt.Println("Not a number.")
 		return
 	}
 
-	min := 10
-	if guess > min {
-		min = guess
+	if guess <= 0 {
+		fmt.Println("Please pick a positive number.")
+		return
 	}
 
-	if verbose {
-		fmt.Printf("The target number is between 1 and %d (exclusive).\n", min)
-	}
+	min := guess
 
-	for turn := 1; turn <= maxTurns; turn++ {
+	for turn := 0; turn < maxTurns; turn++ {
 		n := rand.Intn(min) + 1
 
-		if verbose {
-			fmt.Printf("Turn %d: %d\n", turn, n)
-		}
-
 		if n == guess {
-			if turn == 1 {
-				fmt.Println("🥇 FIRST TIME WINNER!!!")
-			} else {
-				fmt.Println("🎉  YOU WON!")
-			}
+			fmt.Println("🎉  YOU WIN!")
 			return
 		}
+
+		if turn == maxTurns-1 {
+			fmt.Println("☠️  YOU LOST... Try again?")
+			return
+		}
+
+		if turn == 0 {
+			fmt.Println("Keep trying! You have", maxTurns-turn-1, "more chances.")
+			continue
+		}
+
+		fmt.Println("Try again!")
 	}
 
-	fmt.Println("☠️  YOU LOST... Try again?")
 }
