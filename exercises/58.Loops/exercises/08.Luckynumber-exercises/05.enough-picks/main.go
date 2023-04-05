@@ -1,70 +1,59 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"math/rand"
+	"os"
 	"strconv"
 	"time"
 )
 
 const (
-	maxTurns = 5 // less is more difficult
-	usage    = `Welcome to the Lucky Number Game! 🍀
-The program will pick a random number between 1 and 10 (inclusive).
-Your mission is to guess that number.
-Wanna play?
-`
+	maxGuesses = 5 // the maximum number of guesses allowed
 )
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	var verbose bool
-	flag.BoolVar(&verbose, "v", false, "verbose mode")
-	flag.Parse()
+	args := os.Args[1:]
 
-	if flag.NArg() > 0 {
-		fmt.Println("Usage: lucky [-v]")
+	if len(args) < 1 {
+		fmt.Println("Please provide a number as an argument.")
 		return
 	}
 
-	fmt.Printf(usage)
-
-	guess, err := strconv.Atoi(getInput("Your guess: "))
+	guess, err := toInt(args[0])
 	if err != nil {
-		fmt.Println("Not a number.")
+		fmt.Println("Please provide a valid number as an argument.")
 		return
 	}
 
-	if guess < 1 || guess > 10 {
-		fmt.Println("Please pick a number between 1 and 10 (inclusive).")
+	if guess <= 0 {
+		fmt.Println("Please provide a positive number as an argument.")
 		return
 	}
 
-	for turn := 1; turn <= maxTurns; turn++ {
-		n := rand.Intn(10) + 1
-
-		if verbose {
-			fmt.Printf("Turn %d: picked %d\n", turn, n)
-		}
+	for turn := 0; turn < maxGuesses; turn++ {
+		n := rand.Intn(guess) + 1
 
 		if n == guess {
-			if turn == 1 {
-				fmt.Println("🥇 FIRST TIME WINNER!!!")
+			if turn == 0 {
+				fmt.Println("🥇 First try! You're a winner!")
 			} else {
-				fmt.Println("🎉  YOU WON!")
+				fmt.Printf("🎉  You win in %d guesses!\n", turn+1)
 			}
 			return
 		}
 	}
 
-	fmt.Println("☠️  YOU LOST... Try again?")
+	fmt.Println("☠️  You lost... Try again?")
 }
 
-func getInput(prompt string) string {
-	fmt.Print(prompt)
-	var input string
-	fmt.Scanln(&input)
-	return input
+// toInt converts a string to an integer and returns an error if the conversion fails
+func toInt(s string) (int, error) {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, err
+	}
+	return i, nil
 }
