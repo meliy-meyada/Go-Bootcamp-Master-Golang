@@ -1,89 +1,64 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"math/rand"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 )
 
 const (
 	maxTurns = 5 // less is more difficult
 	usage    = `Welcome to the Lucky Number Game! 🍀
-The program will pick a random number between 1 and 10.
-Your mission is to guess the number.
-You have %d turns.
-Wanna play? (y/n)
+The program will pick %d random numbers between 0 and your chosen number.
+Your mission is to guess one of those numbers.
+The greater your number is, harder it gets.
+Wanna play?
 `
 )
 
 func main() {
+	// Set the seed for the random number generator.
 	rand.Seed(time.Now().UnixNano())
 
-	reader := bufio.NewReader(os.Stdin)
+	// Get the command-line arguments.
+	args := os.Args[1:]
 
-	for {
+	// Check if the user provided an argument.
+	if len(args) < 1 {
 		fmt.Printf(usage, maxTurns)
-
-		answer, err := reader.ReadString('\n')
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Error reading input:", err)
-			return
-		}
-
-		answer = strings.TrimSpace(strings.ToLower(answer))
-		if answer != "y" {
-			return
-		}
-
-		guess := getGuess(reader)
-		if guess == 0 {
-			fmt.Println("Please enter a valid number.")
-			continue
-		}
-
-		if playGame(guess) {
-			fmt.Println("🎉  YOU WIN!")
-		} else {
-			fmt.Println("☠️  YOU LOST... Try again?")
-		}
+		return
 	}
-}
 
-func getGuess(reader *bufio.Reader) int {
-	fmt.Print("Pick a number between 1 and 10: ")
-
-	answer, err := reader.ReadString('\n')
+	// Convert the argument to an integer.
+	guess, err := strconv.Atoi(args[0])
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error reading input:", err)
-		return 0
+		fmt.Println("Not a number.")
+		return
 	}
 
-	answer = strings.TrimSpace(answer)
-
-	guess, err := strconv.Atoi(answer)
-	if err != nil {
-		return 0
+	// Check if the integer is positive.
+	if guess <= 0 {
+		fmt.Println("Please pick a positive number.")
+		return
 	}
 
-	if guess < 1 || guess > 10 {
-		return 0
-	}
+	// Set the minimum value for the random number generation.
+	min := guess
 
-	return guess
-}
-
-func playGame(guess int) bool {
+	// Loop through the turns.
 	for turn := 0; turn < maxTurns; turn++ {
-		n := rand.Intn(10) + 1
+		// Generate a random number between 0 and the user's guess.
+		n := rand.Intn(min + 1)
 
+		// Check if the user guessed the number.
 		if n == guess {
-			return true
+			fmt.Println("🎉  YOU WIN!")
+			return
 		}
 	}
 
-	return false
+	// The user did not guess the number.
+	fmt.Println("☠️  YOU LOST... Try again?")
 }
