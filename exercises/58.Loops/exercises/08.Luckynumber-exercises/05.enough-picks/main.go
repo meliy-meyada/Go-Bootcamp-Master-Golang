@@ -1,9 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"math/rand"
-	"os"
 	"strconv"
 	"time"
 )
@@ -11,54 +11,60 @@ import (
 const (
 	maxTurns = 5 // less is more difficult
 	usage    = `Welcome to the Lucky Number Game! 🍀
-The program will pick %d random numbers between 0 and your chosen number.
-Your mission is to guess one of those numbers.
-The greater your number is, harder it gets.
+The program will pick a random number between 1 and 10 (inclusive).
+Your mission is to guess that number.
 Wanna play?
 `
 )
 
 func main() {
-	// Set the seed for the random number generator.
 	rand.Seed(time.Now().UnixNano())
 
-	// Get the command-line arguments.
-	args := os.Args[1:]
+	var verbose bool
+	flag.BoolVar(&verbose, "v", false, "verbose mode")
+	flag.Parse()
 
-	// Check if the user provided an argument.
-	if len(args) < 1 {
-		fmt.Printf(usage, maxTurns)
+	if flag.NArg() > 0 {
+		fmt.Println("Usage: lucky [-v]")
 		return
 	}
 
-	// Convert the argument to an integer.
-	guess, err := strconv.Atoi(args[0])
+	fmt.Printf(usage)
+
+	guess, err := strconv.Atoi(getInput("Your guess: "))
 	if err != nil {
 		fmt.Println("Not a number.")
 		return
 	}
 
-	// Check if the integer is positive.
-	if guess <= 0 {
-		fmt.Println("Please pick a positive number.")
+	if guess < 1 || guess > 10 {
+		fmt.Println("Please pick a number between 1 and 10 (inclusive).")
 		return
 	}
 
-	// Set the minimum value for the random number generation.
-	min := guess
+	for turn := 1; turn <= maxTurns; turn++ {
+		n := rand.Intn(10) + 1
 
-	// Loop through the turns.
-	for turn := 0; turn < maxTurns; turn++ {
-		// Generate a random number between 0 and the user's guess.
-		n := rand.Intn(min + 1)
+		if verbose {
+			fmt.Printf("Turn %d: picked %d\n", turn, n)
+		}
 
-		// Check if the user guessed the number.
 		if n == guess {
-			fmt.Println("🎉  YOU WIN!")
+			if turn == 1 {
+				fmt.Println("🥇 FIRST TIME WINNER!!!")
+			} else {
+				fmt.Println("🎉  YOU WON!")
+			}
 			return
 		}
 	}
 
-	// The user did not guess the number.
 	fmt.Println("☠️  YOU LOST... Try again?")
+}
+
+func getInput(prompt string) string {
+	fmt.Print(prompt)
+	var input string
+	fmt.Scanln(&input)
+	return input
 }
