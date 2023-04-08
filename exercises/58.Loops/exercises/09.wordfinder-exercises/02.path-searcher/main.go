@@ -1,36 +1,34 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
 func main() {
-	// Splitn the PATH env vairible a slice of dir
-	dirs := filepath.SplitList(os.Getenv("PATH"))
+	// Get and split the PATH env variable 
 
-	// Get the command=line arguments as slice of lowercase strings
-	args := make([]string, len(os.Args)-1)
-	for i := 1; i <  len(os.Args); i++ {
-		args[i-1] = strings.ToLower(os.Args[i])
-	}
+	//SplitList for the path env variable separator for the path env variable
+	words := strings.Split(os.Getenv("PATH"), string(os.PathListSeparator))
 
-	// Search for the aguments in each dir of the PATH
-	for _, dir := range dirs{
-		files, err := os.ReadDir(dir)
-		if err != nil {
-			continue // Skip dir that cannot be read
+	scanner := bufio.NewScanner(os.Stdin)
+	for {
+		fmt.Printf("Search for: ")
+		scanner.Scan()
+		query := scanner.Text()
+
+		if query == "q"{
+			break
 		}
-		for _, file := range files {
-			name := strings.ToLower(file.Name())
-			for _, arg := range args {
-				if strings.Contains(name, arg) {
-					fmt.Printf("%s/%s\n", dir, file.Name())
-				}
+
+		for i, w := range words {
+			q, w := strings.ToLower(query), strings.ToLower(w)
+			
+			if strings.Contains(w, q){
+				fmt.Printf("#%-2d: %q\n", i+1, w)
 			}
 		}
 	}
-
 }
