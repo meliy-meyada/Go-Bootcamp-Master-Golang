@@ -29,26 +29,34 @@ func main() {
 		return
 	}
 	guess, err := strconv.Atoi(args[0])
-	if err != nil {
-		fmt.Println("Not a Number.")
+	if err != nil || guess <= 0 {
+		fmt.Println("Please provide a positive integer as the only argument.")
 		return
 	}
-	if guess <= 0 {
-		fmt.Println("Please pick a positive number.")
-		return
-	}
-	var balancer int
+	var maxNumber int
 	if guess > 10 {
-		balancer = guess / 4
+		maxNumber = guess + guess/2 //set a higher range if guess is greater than 10 
+	}else {
+		maxNumber = 10 // set a default maximum number if guess is 10 or less
 	}
 
-	for turn := maxTurns + balancer; turn > 0; turn-- {
-		n := rand.Intn(guess) + 1
+	fmt.Printf("Guess a number between 1 and %d:\n", maxNumber)
 
-		if n == guess {
-			fmt.Println("🍻 You Win!")
+	for turn := 1; turn < maxTurns; turn++{
+		fmt.Printf("Turn %d. Your guess: ", turn)
+
+		var input int
+		fmt.Scanln(&input)
+
+		if input == guess{
+			if turn == 1 {
+				fmt.Println("First time WINNER!!!")
+			}else {
+				fmt.Println("You Won!")
+			}
 			return
 		}
+		fmt.Println("Try again!")
 	}
 	fmt.Println("☠️ You Lost... Try again?")
 }
