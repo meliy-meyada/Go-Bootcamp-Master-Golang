@@ -1,7 +1,7 @@
 package main
 
 import (
-	"flag"
+	"os"
 	"fmt"
 	"strings"
 )
@@ -11,32 +11,31 @@ import (
 const corpus = "Lazy cat jumps again and again and again"
 
 func main() {
-	var wordsMap = make(map[string][]int)
 	
-	// Parse command-line arguments
-	flag.Parse()
-	query := flag.Args()
-
-	// split the corpus string into words
-	words := strings.Split(corpus, " ")
-
-	// Create a map where the key are the words and the values are their indices in the wordas slice
-	for i, word := range words {
-		word = strings.ToLower(word)
-		wordsMap[word] = append(wordsMap[word], i+1)
+	words := strings.Fields(corpus)
+	query := os.Args[1:]
+	
+	if len(query) == 0 {
+		fmt.Println("Please provide one or more search queries.")
+		return
 	}
 
-	// search for each query word in the  map and print its index in the word slice
 	for _, q := range query {
+		// case insensitive search
 		q = strings.ToLower(q)
-		if indices, ok := wordsMap[q]; ok {
-			for _, index := range indices {
-				fmt.Printf("#%-2d: %q\n", index, q)
+
+		if q == "and" ||q == "or" ||q == "the" {
+			continue
+		}
+		found := false
+		for i, w := range words {
+			if q == w {
+				fmt.Printf("#%-2d: %q\n", i+1, w)
+				found = true
 			}
-		} 
+		}
+		if !found {
+			fmt.Printf("%q not found\n", q)
+		}
 	}
-
-
-
-
 }
