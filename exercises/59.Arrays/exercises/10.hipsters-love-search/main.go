@@ -57,43 +57,27 @@ import (
 )
 
 func main() {
-	books := []string{
-		"Kafka's Revenge",
-		"Stay Golden",
-		"Everythingship",
-		"Kafka's Revenge 2nd Edition",
-	}
+	// 1. Create an array with the following book titles
+	books := [...]string{"Kafka's Revenge", "Stay Golden", "Everythingship", "Kafka's Revenge 2nd Edition"}
 
+	// 2. Get the search query from the command-line argument
 	if len(os.Args) < 2 {
 		fmt.Println("Tell me a book title")
 		return
 	}
-
 	query := strings.ToLower(os.Args[1])
 
-	var results []string
-
+	// 3. Search for the books in the books array
+	var found bool
 	for _, book := range books {
 		if strings.Contains(strings.ToLower(book), query) {
-			results = append(results, book)
+			fmt.Printf("+ %s\n", book)
+			found = true
 		}
 	}
 
-	if len(results) == 0 {
-		fmt.Printf(`Search Results:
-We don't have the book: %q
-`, os.Args[1])
-		return
-	}
-
-	fmt.Println("Search Results:")
-	for _, result := range results {
-		fmt.Printf("+ %s\n", result)
+	// 4. When the program finds the book, print it. Otherwise, print that the book doesn't exist.
+	if !found {
+		fmt.Printf("We don't have the book: %q\n", os.Args[1])
 	}
 }
-
-
-
-
-
-
