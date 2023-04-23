@@ -48,29 +48,34 @@ import (
 
 func main() {
 	args := os.Args[1:]
-	
+
 	if len(args) == 0 || len(args) > 5 {
 		fmt.Println("Please give me up to 5 numbers.")
 		return
-
 	}
-	var nums [5]int
 
-	for i, v := range args{
-		num , err := strconv.Atoi(v)
+	var nums [5]int
+	for i, v := range args {
+		num, err := strconv.Atoi(v)
 		if err != nil {
-			num = 0
+			nums[i] = 0
+			continue
 		}
 		nums[i] = num
 	}
 
-	// Bubble-sort algorithm
-	for range nums {
-		for i := 1; i < len(nums); i++ {
-			if nums[i-1] > nums[i] {
-				nums[i], nums[i-1] = nums[i-1], nums[i]
+	for i := 0; i < len(nums)-1; i++ {
+		swapped := false
+		for j := 0; j < len(nums)-i-1; j++ {
+			if nums[j] > nums[j+1] {
+				nums[j], nums[j+1] = nums[j+1], nums[j]
+				swapped = true
 			}
 		}
+		if !swapped {
+			break
+		}
 	}
+
 	fmt.Println(nums)
 }
